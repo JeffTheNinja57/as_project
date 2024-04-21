@@ -1,5 +1,6 @@
 import Rpi.GPIO as GPIO
 from color_recognition import color_sensor
+from movement import front_patrol, left_turn, right_turn
 
 def setup():
     GPIO.setmode(GPIO.BCM)
@@ -7,3 +8,4 @@ def setup():
     GPIO.setup(s2, GPIO.OUT)
     GPIO.setup(s3, GPIO.OUT)
     print("\n")
+
