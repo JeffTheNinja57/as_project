@@ -1,3 +1,7 @@
+from movement.stop import stop
+import RPi.GPIO as GPIO
+import time
+
 def right_turn():
     stop()
     GPIO.output(left_motor_pins[0], GPIO.HIGH)

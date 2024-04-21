@@ -1,3 +1,36 @@
+from movement import measure_distance, left_turn, right_turn
+import RPi.GPIO as GPIO
+import time
+import random
+
+
+def forward():
+    # Set motor pins for forward motion
+    GPIO.output(left_motor_pins[0], GPIO.HIGH)
+    GPIO.output(left_motor_pins[1], GPIO.LOW)
+    GPIO.output(right_motor_pins[0], GPIO.HIGH)
+    GPIO.output(right_motor_pins[1], GPIO.LOW)
+
+
+def stop():
+    # Stop the motors
+    for pin in left_motor_pins + right_motor_pins:
+        GPIO.output(pin, GPIO.LOW)
+
+
+def turn(direction):
+    # Stop the motors
+    stop()
+
+    # Turn left or right
+    if direction == 'left':
+        left_turn.left_turn()
+    elif direction == 'right':
+        right_turn.right_turn()
+    else:
+        raise ValueError("Invalid direction. Expected 'left' or 'right'.")
+
+
 def patrol():
     while True:
         # Move forward
