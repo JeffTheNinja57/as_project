@@ -1,5 +1,7 @@
 import RPi.GPIO as GPIO
 import time
+
+
 def measure_distance():
     # Trigger ultrasonic sensor
     GPIO.output(TRIG, True)

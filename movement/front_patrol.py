@@ -1,4 +1,4 @@
-from movement import measure_distance, left_turn, right_turn
+from movement import left_turn, right_turn, distance
 import RPi.GPIO as GPIO
 import time
 import random
