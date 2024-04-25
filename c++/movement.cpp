@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <random>
 
+using namespace std;
+
 // Define motor control pins
 const uint8_t dirPin1 = 5, dirPin2 = 10, spdPin1 = 6, spdPin2 = 9;
 // Define constant for turning duration (in milliseconds)
@@ -12,7 +14,7 @@ const unsigned long turn_duration = 1000; // Adjust as needed
 const float forward_distance = 10.0; // Adjust as needed
 
 // Variable to keep track of previous turn direction
-String prev_turn = "";
+string prev_turn = "";
 
 void setSpeed(uint8_t speedLeft, uint8_t speedRight) {
   // We'll scale the speed from 0~100. We'll set the minimum at 55 so the
@@ -45,7 +47,7 @@ void stop() {
     digitalWrite(dirPin2, LOW);
 }
 
-void turn(String direction) {
+void turn(string direction) {
     // Stop the motors
     stop();
 
@@ -83,7 +85,7 @@ void patrol() {
                 direction = random(2) == 0 ? "left" : "right";
             } else {
                 // If there was a previous turn, turn in the opposite direction
-                direction = prev_turn == "left" ? "right" : "left";
+                direction = prev_turn == ("left" ? "right" : "left");
             }
 
             // Perform turn
@@ -99,13 +101,15 @@ void patrol() {
             stop();
             delay(500); // Pause for stability
 
-            // Make another turn (90 degrees) after moving forward
-            String next_turn = direction == "left" ? "right" : "left";
-            turn(next_turn);
+            // Make another turn (90 degrees) in the same direction after moving forward
+            turn(direction)
+
             delay(turn_duration); // Turn for the specified duration
 
             // Reset previous turn direction
-            prev_turn = "";
+            string next_turn = (direction == "left" ? "right" : "left");
+            prev_turn = next_turn;
+            next_turn = "";
         }
     }
 }
