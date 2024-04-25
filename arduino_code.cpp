@@ -97,20 +97,17 @@ void getColorSensorValues(int& red, int& green, int& blue) {
 
 // Function to control LEDs based on color sensor readings
 void controlLEDs(int red, int green, int blue) {
+  digitalWrite(4, LOW);  // Green LED
+  digitalWrite(3, LOW);  // Blue LED
+  digitalWrite(5, LOW);  // Red LED
   if (red > blue && red > green) {
     digitalWrite(5, HIGH); // Red LED
-    digitalWrite(4, LOW);  // Green LED
-    digitalWrite(3, LOW);  // Blue LED
     Serial.println("Detected color: Red");
   } else if (blue > red && blue > green) {
-    digitalWrite(5, LOW);  // Red LED
-    digitalWrite(4, LOW);  // Green LED
     digitalWrite(3, HIGH); // Blue LED
     Serial.println("Detected color: Blue");
   } else if (green > blue && green > red) {
-    digitalWrite(5, LOW);  // Red LED
     digitalWrite(4, HIGH); // Green LED
-    digitalWrite(3, LOW);  // Blue LED
     Serial.println("Detected color: Green");
   }
 }
