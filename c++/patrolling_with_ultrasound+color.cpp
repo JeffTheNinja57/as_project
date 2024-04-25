@@ -17,8 +17,8 @@ const int colorSensorS0Pin = 9;   // Color sensor S0 pin (for frequency scaling,
 
 // Variables
 int turning = 0;  // 0 = turn left, 1 = turn right
-boolean wallDetected = false;
-boolean patrolEnabled = true;
+bool wallDetected = false;
+bool patrolEnabled = true;
 
 void setup() {
   // Initialize motor control pins as outputs
