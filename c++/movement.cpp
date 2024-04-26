@@ -4,48 +4,64 @@
 #include <Arduino.h>
 #include <random>
 
+using namespace std;
+
+// Define motor control pins
+const uint8_t dirPin1 = 5, dirPin2 = 10, spdPin1 = 6, spdPin2 = 9;
+// Define constant for turning duration (in milliseconds)
+const unsigned long turn_duration = 1000; // Adjust as needed
+// Define constant for forward distance (in centimeters)
+const float forward_distance = 10.0; // Adjust as needed
+
+// Variable to keep track of previous turn direction
+string prev_turn = "";
+
+void setSpeed(uint8_t speedLeft, uint8_t speedRight) {
+  // We'll scale the speed from 0~100. We'll set the minimum at 55 so the
+  // robot actually moves!
+  speedLeft = 55+speedLeft*2;
+  speedRight = 55+speedRight*2;
+  // Send the PWM signal to the speed pins
+  analogWrite(spdPin1, speedLeft);
+  analogWrite(spdPin2, speedRight);
+}
+
 void setup_movement() {
     // Setup motor control pins as outputs
-    for (int pin : left_motor_pins) {
-        pinMode(pin, OUTPUT);
-    }
-    for (int pin : right_motor_pins) {
-        pinMode(pin, OUTPUT);
-    }
-
-    // Setup ultrasonic sensor pins
-    pinMode(TRIG, OUTPUT);
-    pinMode(ECHO, INPUT);
+    pinMode(dirPin1, OUTPUT);
+    pinMode(dirPin2, OUTPUT);
 }
 
 void forward() {
-    // Set motor pins for forward motion
-    digitalWrite(left_motor_pins[0], HIGH);
-    digitalWrite(left_motor_pins[1], LOW);
-    digitalWrite(right_motor_pins[0], HIGH);
-    digitalWrite(right_motor_pins[1], LOW);
+    // Set the direction of the motors to move forward
+    digitalWrite(dirPin1, LOW);
+    digitalWrite(dirPin2, LOW);
 }
 
 void stop() {
     // Stop the motors
-    for (int pin : left_motor_pins) {
-        digitalWrite(pin, LOW);
-    }
-    for (int pin : right_motor_pins) {
-        digitalWrite(pin, LOW);
-    }
+    digitalWrite(spdPin1, 0);
+    digitalWrite(spdPin2, 0);
+    // As a precaution reset the direction of the motors
+    digitalWrite(dirPin1, LOW);
+    digitalWrite(dirPin2, LOW);
 }
 
-void turn(String direction) {
+void turn(string direction) {
     // Stop the motors
     stop();
 
     // Turn left or right
     if (direction == "left") {
-        left_turn();
+        digitalWrite(dirPin1, HIGH);
+        digitalWrite(dirPin2, LOW);
     } else if (direction == "right") {
-        right_turn();
+        digitalWrite(dirPin1, LOW);
+        digitalWrite(dirPin2, HIGH);
     }
+
+    // Record the current turn direction as previous turn
+    prev_turn = direction;
 }
 
 void patrol() {
@@ -60,53 +76,40 @@ void patrol() {
         Serial.print(distance);
         Serial.println(" cm");
 
-        // If close to the wall, turn left or right randomly
+        // If close to the wall, turn left or right
         if (distance < 20) {  // Adjust this threshold as needed
-            String direction = random(2) == 0 ? "left" : "right";
+            // Determine turn direction
+            String direction;
+            if (prev_turn == "") {
+                // If there was no previous turn, turn randomly
+                direction = random(2) == 0 ? "left" : "right";
+            } else {
+                // If there was a previous turn, turn in the opposite direction
+                direction = prev_turn == ("left" ? "right" : "left");
+            }
+
+            // Perform turn
             turn(direction);
-            delay(1000);  // Turn for a short duration
+            delay(turn_duration); // Turn for the specified duration
+
+            // Move forward a certain distance
+            // Move for 10 cm
+            forward();
+            delay(1000 * (forward_distance / 10)); // Convert cm to milliseconds
+
+            // Stop the robot
+            stop();
+            delay(500); // Pause for stability
+
+            // Make another turn (90 degrees) in the same direction after moving forward
+            turn(direction)
+
+            delay(turn_duration); // Turn for the specified duration
+
+            // Reset previous turn direction
+            string next_turn = (direction == "left" ? "right" : "left");
+            prev_turn = next_turn;
+            next_turn = "";
         }
     }
-}
-
-float measure_distance() {
-    // Trigger ultrasonic sensor
-    digitalWrite(TRIG, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TRIG, LOW);
-
-    // Wait for the echo signal
-    unsigned long pulse_start, pulse_end;
-    pulse_start = micros();
-    while (digitalRead(ECHO) == LOW) {
-        pulse_start = micros();
-    }
-    while (digitalRead(ECHO) == HIGH) {
-        pulse_end = micros();
-    }
-
-    // Calculate duration based on the time difference
-    float pulse_duration = pulse_end - pulse_start;
-    float distance = pulse_duration * 0.034 / 2;  // Speed of sound is 34 cm/ms
-    return distance;
-}
-
-void left_turn() {
-    stop();
-    digitalWrite(left_motor_pins[0], LOW);
-    digitalWrite(left_motor_pins[1], HIGH);
-    digitalWrite(right_motor_pins[0], HIGH);
-    digitalWrite(right_motor_pins[1], LOW);
-    delay(500);
-    stop();
-}
-
-void right_turn() {
-    stop();
-    digitalWrite(left_motor_pins[0], HIGH);
-    digitalWrite(left_motor_pins[1], LOW);
-    digitalWrite(right_motor_pins[0], LOW);
-    digitalWrite(right_motor_pins[1], HIGH);
-    delay(500);
-    stop();
 }
