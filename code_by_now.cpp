@@ -11,10 +11,10 @@
 #define blueLEDPin 5
 
 // Define motor pins
-const int motorPin1 = A0;   // Pin 14 of L293
-const int motorPin2 = A1;   // Pin 10 of L293
-const int motorPin3 = A4;   // Pin  7 of L293
-const int motorPin4 = A3;   // Pin  2 of L293
+const int motorPin1 = A0;  // Pin 14 of L293
+const int motorPin2 = A1;  // Pin 10 of L293
+const int motorPin3 = A4;  // Pin  7 of L293
+const int motorPin4 = A3;  // Pin  2 of L293
 
 // Define ultrasound sensor pins
 const int trigPin = 10;
@@ -31,12 +31,12 @@ void readRGB() {
   digitalWrite(S3, LOW);
   // Reading red value
   red = pulseIn(sensorOut, LOW);
-  
+
   digitalWrite(S2, HIGH);
   digitalWrite(S3, HIGH);
   // Reading green value
   green = pulseIn(sensorOut, LOW);
-  
+
   digitalWrite(S2, LOW);
   digitalWrite(S3, HIGH);
   // Reading blue value
@@ -49,31 +49,87 @@ void moveBackward() {
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(500); // Delay for half a second
+  delay(500);  // Delay for half a second
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, LOW);
 }
 
-void moveREDLEFT() {
-  digitalWrite(motorPin1, LOW);
+void moveREDRIGHT() {
+  digitalWrite(motorPin1, HIGH);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, HIGH);
+  digitalWrite(motorPin4, LOW);
+  delay(650);  // Delay for half a second
+  digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(500); // Delay for half a second
+  delay(855);  // Delay for half a second
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, HIGH);
+  digitalWrite(motorPin4, LOW);
+  delay(855);
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  delay(650);  // Delay for half a second
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, LOW);
 }
 
-void moveBLUERIGHT() {
+void moveBLUELEFT() {
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  delay(650);  // Delay for half a second
+  digitalWrite(motorPin1, HIGH);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  delay(855);  // Delay for half a second
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, HIGH);
   digitalWrite(motorPin4, LOW);
-  delay(500); // Delay for half a second
+  delay(855);
+  digitalWrite(motorPin1, HIGH);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, HIGH);
+  digitalWrite(motorPin4, LOW);
+  delay(630);
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
+}
+void moveGREENBACK() {
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  delay(1250);  // Delay for half a second
+  digitalWrite(motorPin1, HIGH);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  delay(850);  // Delay for half a second
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, HIGH);
+  digitalWrite(motorPin4, LOW);
+  delay(850);
+  digitalWrite(motorPin1, HIGH);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, HIGH);
+  digitalWrite(motorPin4, LOW);
+  delay(1250);
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -87,19 +143,19 @@ float measureDistance() {
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  
+
   float duration = pulseIn(echoPin, HIGH);
   // Speed of sound in air = 343 m/s = 0.0343 cm/us
-  float distance = (duration * 0.0343) / 2; // Divide by 2 because of round trip
-  
+  float distance = (duration * 0.0343) / 2;  // Divide by 2 because of round trip
+
   return distance;
 }
 
 float stopLED() {
-      digitalWrite(redLEDPin, LOW);
-      digitalWrite(greenLEDPin, LOW);
-      digitalWrite(blueLEDPin, LOW);
-    }
+  digitalWrite(redLEDPin, LOW);
+  digitalWrite(greenLEDPin, LOW);
+  digitalWrite(blueLEDPin, LOW);
+}
 
 // Function to check for obstacles, detect color, and take appropriate actions
 void checkColorAndObstacle() {
@@ -110,7 +166,7 @@ void checkColorAndObstacle() {
     // Move backward
     // Read RGB values
     readRGB();
-  // Display RGB values in the console
+    // Display RGB values in the console
     Serial.print("Red: ");
     Serial.print(red);
     Serial.print(" Green: ");
@@ -118,28 +174,28 @@ void checkColorAndObstacle() {
     Serial.print(" Blue: ");
     Serial.println(blue);
 
-      // Determine color based on RGB values
+    // Determine color based on RGB values
     if (45 > red && blue > red && green > red && green > 60) {
       digitalWrite(redLEDPin, HIGH);
       digitalWrite(greenLEDPin, LOW);
       digitalWrite(blueLEDPin, LOW);
       delay(1000);
       stopLED();
-      moveREDLEFT();
+      moveREDRIGHT();
     } else if (50 > green && red > green && red > blue) {
       digitalWrite(redLEDPin, LOW);
       digitalWrite(greenLEDPin, HIGH);
       digitalWrite(blueLEDPin, LOW);
       delay(1000);
       stopLED();
-      moveBackward();
+      moveGREENBACK();
     } else if (50 > blue && red > blue && green > blue && green > 50) {
       digitalWrite(redLEDPin, LOW);
       digitalWrite(greenLEDPin, LOW);
       digitalWrite(blueLEDPin, HIGH);
       delay(1000);
       stopLED();
-      moveBLUERIGHT();
+      moveBLUELEFT();
     } else {
       digitalWrite(redLEDPin, LOW);
       digitalWrite(greenLEDPin, LOW);
@@ -147,9 +203,6 @@ void checkColorAndObstacle() {
       stopLED();
     }
   }
-
-  
-
 }
 
 void setup() {
@@ -161,11 +214,11 @@ void setup() {
   pinMode(sensorOut, INPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  
+
   // Set sensor frequency to 20%
   digitalWrite(S0, HIGH);
   digitalWrite(S1, LOW);
-  
+
   // Set LED pin modes
   pinMode(redLEDPin, OUTPUT);
   pinMode(greenLEDPin, OUTPUT);
@@ -176,7 +229,7 @@ void setup() {
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
   pinMode(motorPin4, OUTPUT);
-  
+
   // Initialize Serial communication
   Serial.begin(9600);
 }
