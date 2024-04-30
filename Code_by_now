@@ -1,0 +1,160 @@
+#ifndef ROBOT_PINS_DEFINED
+#define ROBOT_PINS_DEFINED
+
+// Pin configurations for L293D motor driver
+const int motorPin1 = A0;   // Pin 14 of L293
+const int motorPin2 = A1;   // Pin 10 of L293
+const int motorPin3 = A3;   // Pin  7 of L293
+const int motorPin4 = A4;   // Pin  2 of L293
+
+// Pin configurations for ultrasonic sensor
+const int trigPin = 10;
+const int echoPin = 11;
+
+// Pin configurations for color sensor
+#define S0 8
+#define S1 9
+#define S2 6
+#define S3 7
+#define sensorOut 2
+
+#endif
+
+// Calibration parameters for color sensor
+#define BLUE_LOW_PARA 50
+#define BLUE_HIGH_PARA 300
+#define RED_LOW_PARA 50
+#define RED_HIGH_PARA 300
+#define GREEN_LOW_PARA 50
+#define GREEN_HIGH_PARA 300
+
+int blue = 0;
+int red = 0;
+int green = 0;
+int frequency = 0;
+
+unsigned long ledStartTime = 0;
+unsigned long ledDuration = 1000; // LED display duration in milliseconds
+
+void setup() {
+  Serial.begin(9600);
+  setupPins();
+}
+
+void loop() {
+  long distance = readUltrasonic();
+  if (distance < 8) {
+    readColor();
+    activateLED();
+    delay(ledDuration);
+    deactivateLED();
+    if (70 > blue && red > blue && green > blue && green > 60) {
+      Serial.println("Color Detected: BLUE");
+      digitalWrite(3, HIGH); // Turn on blue LED
+    }
+    if (30 > green && red > green && blue > 5) {
+      Serial.println("Color Detected: GREEN");
+      digitalWrite(4, HIGH); // Turn on green LED
+    }
+    if (30 > red && green > red && blue > red) {
+      Serial.println("Color Detected: RED");
+      digitalWrite(5, HIGH); // Turn on red LED
+    }
+    if (red > blue) {
+      turnRight();
+    } else if (blue > red) {
+      turnLeft();
+    }
+  }
+}
+
+void setupPins() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(sensorOut, INPUT);
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, LOW);
+  pinMode(3, OUTPUT); // For blue
+  pinMode(4, OUTPUT); // For green
+  pinMode(5, OUTPUT); // For red
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+}
+
+long readUltrasonic() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(100);
+  digitalWrite(trigPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  return microsecondsToCentimeters(duration);
+}
+
+void readColor() {
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
+  frequency = pulseIn(sensorOut, LOW);
+  red = map(frequency, RED_HIGH_PARA, RED_LOW_PARA, 255, 0);
+  delay(100);
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
+  frequency = pulseIn(sensorOut, LOW);
+  green = map(frequency, GREEN_HIGH_PARA, GREEN_LOW_PARA, 255, 0);
+  delay(100);
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
+  frequency = pulseIn(sensorOut, LOW);
+  blue = map(frequency, BLUE_HIGH_PARA, BLUE_LOW_PARA, 255, 0);
+  Serial.println("-----------------");
+}
+
+void activateLED() {
+  analogWrite(5, red);    // Red LED
+  analogWrite(4, green);  // Green LED
+  analogWrite(3, blue);   // Blue LED
+  ledStartTime = millis(); // Record the start time of the LED display
+}
+
+void deactivateLED() {
+  digitalWrite(3, LOW); // Turn off blue LED
+  digitalWrite(4, LOW); // Turn off green LED
+  digitalWrite(5, LOW); // Turn off red LED
+}
+
+void turnRight() {
+  digitalWrite(motorPin1, HIGH);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, HIGH);
+  digitalWrite(motorPin4, LOW);
+  unsigned long startTime = millis();
+  while (millis() - startTime < 2000) {} // Turn for 2 seconds
+  stopMotors();
+}
+
+void turnLeft() {
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  unsigned long startTime = millis();
+  while (millis() - startTime < 2000) {} // Turn for 2 seconds
+  stopMotors();
+}
+
+void stopMotors() {
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
+}
+
+long microsecondsToCentimeters(long microseconds) {
+  return microseconds / 29 / 2;
+}
