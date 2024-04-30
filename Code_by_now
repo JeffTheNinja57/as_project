@@ -1,16 +1,3 @@
-#ifndef ROBOT_PINS_DEFINED
-#define ROBOT_PINS_DEFINED
-
-// Pin configurations for L293D motor driver
-const int motorPin1 = A0;   // Pin 14 of L293
-const int motorPin2 = A1;   // Pin 10 of L293
-const int motorPin3 = A3;   // Pin  7 of L293
-const int motorPin4 = A4;   // Pin  2 of L293
-
-// Pin configurations for ultrasonic sensor
-const int trigPin = 10;
-const int echoPin = 11;
-
 // Pin configurations for color sensor
 #define S0 8
 #define S1 9
@@ -18,143 +5,183 @@ const int echoPin = 11;
 #define S3 7
 #define sensorOut 2
 
-#endif
+// Pin configurations for multicolor LED
+#define redLEDPin 3
+#define greenLEDPin 4
+#define blueLEDPin 5
 
-// Calibration parameters for color sensor
-#define BLUE_LOW_PARA 50
-#define BLUE_HIGH_PARA 300
-#define RED_LOW_PARA 50
-#define RED_HIGH_PARA 300
-#define GREEN_LOW_PARA 50
-#define GREEN_HIGH_PARA 300
+// Define motor pins
+const int motorPin1 = A0;   // Pin 14 of L293
+const int motorPin2 = A1;   // Pin 10 of L293
+const int motorPin3 = A4;   // Pin  7 of L293
+const int motorPin4 = A3;   // Pin  2 of L293
 
-int blue = 0;
+// Define ultrasound sensor pins
+const int trigPin = 10;
+const int echoPin = 11;
+
+// Define variables to store RGB values
 int red = 0;
 int green = 0;
-int frequency = 0;
+int blue = 0;
 
-unsigned long ledStartTime = 0;
-unsigned long ledDuration = 1000; // LED display duration in milliseconds
-
-void setup() {
-  Serial.begin(9600);
-  setupPins();
+// Function to read RGB values
+void readRGB() {
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
+  // Reading red value
+  red = pulseIn(sensorOut, LOW);
+  
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
+  // Reading green value
+  green = pulseIn(sensorOut, LOW);
+  
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
+  // Reading blue value
+  blue = pulseIn(sensorOut, LOW);
 }
 
-void loop() {
-  long distance = readUltrasonic();
+// Function to move the motor backward for a specified duration
+void moveBackward() {
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  delay(500); // Delay for half a second
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
+}
+
+void moveREDLEFT() {
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, HIGH);
+  delay(500); // Delay for half a second
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
+}
+
+void moveBLUERIGHT() {
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
+  delay(500); // Delay for half a second
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  digitalWrite(motorPin3, LOW);
+  digitalWrite(motorPin4, LOW);
+}
+
+// Function to measure distance using ultrasound sensor
+float measureDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  float duration = pulseIn(echoPin, HIGH);
+  // Speed of sound in air = 343 m/s = 0.0343 cm/us
+  float distance = (duration * 0.0343) / 2; // Divide by 2 because of round trip
+  
+  return distance;
+}
+
+float stopLED() {
+      digitalWrite(redLEDPin, LOW);
+      digitalWrite(greenLEDPin, LOW);
+      digitalWrite(blueLEDPin, LOW);
+    }
+
+// Function to check for obstacles, detect color, and take appropriate actions
+void checkColorAndObstacle() {
+
+  // Check for obstacles
+  float distance = measureDistance();
   if (distance < 8) {
-    readColor();
-    activateLED();
-    delay(ledDuration);
-    deactivateLED();
-    if (70 > blue && red > blue && green > blue && green > 60) {
-      Serial.println("Color Detected: BLUE");
-      digitalWrite(3, HIGH); // Turn on blue LED
-    }
-    if (30 > green && red > green && blue > 5) {
-      Serial.println("Color Detected: GREEN");
-      digitalWrite(4, HIGH); // Turn on green LED
-    }
-    if (30 > red && green > red && blue > red) {
-      Serial.println("Color Detected: RED");
-      digitalWrite(5, HIGH); // Turn on red LED
-    }
-    if (red > blue) {
-      turnRight();
-    } else if (blue > red) {
-      turnLeft();
+    // Move backward
+    // Read RGB values
+    readRGB();
+  // Display RGB values in the console
+    Serial.print("Red: ");
+    Serial.print(red);
+    Serial.print(" Green: ");
+    Serial.print(green);
+    Serial.print(" Blue: ");
+    Serial.println(blue);
+
+      // Determine color based on RGB values
+    if (45 > red && blue > red && green > red && green > 60) {
+      digitalWrite(redLEDPin, HIGH);
+      digitalWrite(greenLEDPin, LOW);
+      digitalWrite(blueLEDPin, LOW);
+      delay(1000);
+      stopLED();
+      moveREDLEFT();
+    } else if (50 > green && red > green && red > blue) {
+      digitalWrite(redLEDPin, LOW);
+      digitalWrite(greenLEDPin, HIGH);
+      digitalWrite(blueLEDPin, LOW);
+      delay(1000);
+      stopLED();
+      moveBackward();
+    } else if (50 > blue && red > blue && green > blue && green > 50) {
+      digitalWrite(redLEDPin, LOW);
+      digitalWrite(greenLEDPin, LOW);
+      digitalWrite(blueLEDPin, HIGH);
+      delay(1000);
+      stopLED();
+      moveBLUERIGHT();
+    } else {
+      digitalWrite(redLEDPin, LOW);
+      digitalWrite(greenLEDPin, LOW);
+      digitalWrite(blueLEDPin, LOW);
+      stopLED();
     }
   }
+
+  
+
 }
 
-void setupPins() {
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+void setup() {
+  // Set pin modes
   pinMode(S0, OUTPUT);
   pinMode(S1, OUTPUT);
   pinMode(S2, OUTPUT);
   pinMode(S3, OUTPUT);
   pinMode(sensorOut, INPUT);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
+  // Set sensor frequency to 20%
   digitalWrite(S0, HIGH);
   digitalWrite(S1, LOW);
-  pinMode(3, OUTPUT); // For blue
-  pinMode(4, OUTPUT); // For green
-  pinMode(5, OUTPUT); // For red
+  
+  // Set LED pin modes
+  pinMode(redLEDPin, OUTPUT);
+  pinMode(greenLEDPin, OUTPUT);
+  pinMode(blueLEDPin, OUTPUT);
+
+  // Set motor pins as outputs
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
   pinMode(motorPin4, OUTPUT);
+  
+  // Initialize Serial communication
+  Serial.begin(9600);
 }
 
-long readUltrasonic() {
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(100);
-  digitalWrite(trigPin, LOW);
-  long duration = pulseIn(echoPin, HIGH);
-  return microsecondsToCentimeters(duration);
-}
-
-void readColor() {
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, LOW);
-  frequency = pulseIn(sensorOut, LOW);
-  red = map(frequency, RED_HIGH_PARA, RED_LOW_PARA, 255, 0);
-  delay(100);
-  digitalWrite(S2, HIGH);
-  digitalWrite(S3, HIGH);
-  frequency = pulseIn(sensorOut, LOW);
-  green = map(frequency, GREEN_HIGH_PARA, GREEN_LOW_PARA, 255, 0);
-  delay(100);
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, HIGH);
-  frequency = pulseIn(sensorOut, LOW);
-  blue = map(frequency, BLUE_HIGH_PARA, BLUE_LOW_PARA, 255, 0);
-  Serial.println("-----------------");
-}
-
-void activateLED() {
-  analogWrite(5, red);    // Red LED
-  analogWrite(4, green);  // Green LED
-  analogWrite(3, blue);   // Blue LED
-  ledStartTime = millis(); // Record the start time of the LED display
-}
-
-void deactivateLED() {
-  digitalWrite(3, LOW); // Turn off blue LED
-  digitalWrite(4, LOW); // Turn off green LED
-  digitalWrite(5, LOW); // Turn off red LED
-}
-
-void turnRight() {
-  digitalWrite(motorPin1, HIGH);
-  digitalWrite(motorPin2, LOW);
-  digitalWrite(motorPin3, HIGH);
-  digitalWrite(motorPin4, LOW);
-  unsigned long startTime = millis();
-  while (millis() - startTime < 2000) {} // Turn for 2 seconds
-  stopMotors();
-}
-
-void turnLeft() {
-  digitalWrite(motorPin1, LOW);
-  digitalWrite(motorPin2, HIGH);
-  digitalWrite(motorPin3, LOW);
-  digitalWrite(motorPin4, HIGH);
-  unsigned long startTime = millis();
-  while (millis() - startTime < 2000) {} // Turn for 2 seconds
-  stopMotors();
-}
-
-void stopMotors() {
-  digitalWrite(motorPin1, LOW);
-  digitalWrite(motorPin2, LOW);
-  digitalWrite(motorPin3, LOW);
-  digitalWrite(motorPin4, LOW);
-}
-
-long microsecondsToCentimeters(long microseconds) {
-  return microseconds / 29 / 2;
+void loop() {
+  // Check color and obstacle, and take appropriate actions
+  checkColorAndObstacle();
 }
