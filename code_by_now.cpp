@@ -44,24 +44,13 @@ void readRGB() {
 }
 
 // Function to move the motor backward for a specified duration
-void moveBackward() {
-  digitalWrite(motorPin1, LOW);
-  digitalWrite(motorPin2, HIGH);
-  digitalWrite(motorPin3, LOW);
-  digitalWrite(motorPin4, HIGH);
-  delay(500);  // Delay for half a second
-  digitalWrite(motorPin1, LOW);
-  digitalWrite(motorPin2, LOW);
-  digitalWrite(motorPin3, LOW);
-  digitalWrite(motorPin4, LOW);
-}
 
 void moveREDRIGHT() {
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, HIGH);
   digitalWrite(motorPin4, LOW);
-  delay(650);  // Delay for half a second
+  delay(450);  // Delay for half a second
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -76,7 +65,7 @@ void moveREDRIGHT() {
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(650);  // Delay for half a second
+  delay(450);  // Delay for half a second
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -88,7 +77,7 @@ void moveBLUELEFT() {
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(650);  // Delay for half a second
+  delay(450);  // Delay for half a second
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -103,7 +92,7 @@ void moveBLUELEFT() {
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, HIGH);
   digitalWrite(motorPin4, LOW);
-  delay(630);
+  delay(450);
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -114,7 +103,7 @@ void moveGREENBACK() {
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(1250);  // Delay for half a second
+  delay(900);  // Delay for half a second
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -129,7 +118,7 @@ void moveGREENBACK() {
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, HIGH);
   digitalWrite(motorPin4, LOW);
-  delay(1250);
+  delay(900);
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -162,7 +151,7 @@ void checkColorAndObstacle() {
 
   // Check for obstacles
   float distance = measureDistance();
-  if (distance < 8) {
+  if (distance < 5) {
     // Move backward
     // Read RGB values
     readRGB();
