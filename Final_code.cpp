@@ -43,19 +43,19 @@ void readRGB() {
   blue = pulseIn(sensorOut, LOW);
 }
 
-// Function to move the motor backward for a specified duration
+// Function to move the motor based on the color detected, change delay for different floors 
 
 void moveREDRIGHT() {
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, HIGH);
   digitalWrite(motorPin4, LOW);
-  delay(450);  // Delay for half a second
+  delay(450);  
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(855);  // Delay for half a second
+  delay(855);  
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, HIGH);
@@ -65,7 +65,7 @@ void moveREDRIGHT() {
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(450);  // Delay for half a second
+  delay(450);  
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
@@ -77,12 +77,12 @@ void moveBLUELEFT() {
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(450);  // Delay for half a second
+  delay(450);  
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(855);  // Delay for half a second
+  delay(855);  
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, HIGH);
@@ -103,12 +103,12 @@ void moveGREENBACK() {
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(900);  // Delay for half a second
+  delay(900);  
   digitalWrite(motorPin1, HIGH);
   digitalWrite(motorPin2, LOW);
   digitalWrite(motorPin3, LOW);
   digitalWrite(motorPin4, HIGH);
-  delay(850);  // Delay for half a second
+  delay(850);  
   digitalWrite(motorPin1, LOW);
   digitalWrite(motorPin2, HIGH);
   digitalWrite(motorPin3, HIGH);
@@ -132,27 +132,26 @@ float measureDistance() {
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-
+//deffining a constant
   float duration = pulseIn(echoPin, HIGH);
   // Speed of sound in air = 343 m/s = 0.0343 cm/us
   float distance = (duration * 0.0343) / 2;  // Divide by 2 because of round trip
 
   return distance;
 }
-
+//The LED needs to be stopped with this function otherwise the color is showed continously
 float stopLED() {
   digitalWrite(redLEDPin, LOW);
   digitalWrite(greenLEDPin, LOW);
   digitalWrite(blueLEDPin, LOW);
 }
 
-// Function to check for obstacles, detect color, and take appropriate actions
+// Function to check for obstacles, detect color, and take appropriate actions calling functions
 void checkColorAndObstacle() {
 
   // Check for obstacles
   float distance = measureDistance();
   if (distance < 5) {
-    // Move backward
     // Read RGB values
     readRGB();
     // Display RGB values in the console
@@ -163,7 +162,7 @@ void checkColorAndObstacle() {
     Serial.print(" Blue: ");
     Serial.println(blue);
 
-    // Determine color based on RGB values
+    // Determine color based on RGB values and call the motor control function based on the color
     if (45 > red && blue > red && green > red && green > 60) {
       digitalWrite(redLEDPin, HIGH);
       digitalWrite(greenLEDPin, LOW);
@@ -224,6 +223,6 @@ void setup() {
 }
 
 void loop() {
-  // Check color and obstacle, and take appropriate actions
+  // loop the obstacle detection function and all that it develops from it(Explained up in the code)
   checkColorAndObstacle();
 }
